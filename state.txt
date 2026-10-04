@@ -2,10 +2,10 @@
   "state": "sit",
   "counts": {
     "sleep": 0,
-    "play": 1,
-    "eat": 1,
-    "sit": 2,
-    "meow": 1
+    "play": 0,
+    "eat": 0,
+    "sit": 1,
+    "meow": 0
   },
-  "updatedAt": 1791138030368
+  "updatedAt": 1791138066925
 }
