@@ -138,7 +138,7 @@
 
 <script>
   /* ============================================================
-     1. НАСТРОЙКИ РЕПОЗИТОРИЯ — УЖЕ ЗАПОЛНЕНО ВАШИМИ ДАННЫМИ
+     1. НАСТРОЙКИ РЕПОЗИТОРИЯ
   */
   const GITHUB = {
     owner: 'sddfsdfr999-prog',
@@ -147,7 +147,6 @@
     path:  'state.txt'
   };
 
-  const RAW_URL  = `https://raw.githubusercontent.com/${GITHUB.owner}/${GITHUB.repo}/${GITHUB.branch}/${GITHUB.path}`;
   const API_URL  = `https://api.github.com/repos/${GITHUB.owner}/${GITHUB.repo}/contents/${GITHUB.path}`;
   const TOKEN_KEY = 'gh_token';
 
@@ -270,7 +269,7 @@
     if (t && t.trim()) {
       localStorage.setItem(TOKEN_KEY, t.trim());
       setStatus('токен сохранён', '#2ecc71');
-      pullFromGithub();
+      pullFromGithub({ force: true });
     } else {
       setStatus('токен не задан — только чтение', '#e67e22');
     }
@@ -286,12 +285,43 @@
 
   /* ============================================================
      5. ЧТЕНИЕ из GitHub
+     Через API (не кешируется). Без токена — через raw.
+     lastPushTime: не читаем сразу после своей записи, чтобы не откатить её.
   */
-  async function pullFromGithub() {
+  let lastPushTime = 0;
+
+  async function pullFromGithub({ force = false } = {}) {
+    // Пауза после своей же записи — иначе вернём старое значение из кеша/гонки
+    if (!force && Date.now() - lastPushTime < 7000) return;
+
+    const token = getToken();
     try {
-      const res = await fetch(`${RAW_URL}?t=${Date.now()}`, { cache: 'no-store' });
-      if (!res.ok) throw new Error('http ' + res.status);
-      const remote = await res.json();
+      let remote;
+
+      if (token) {
+        const res = await fetch(`${API_URL}?ref=${GITHUB.branch}&t=${Date.now()}`, {
+          headers: {
+            'Authorization': 'Bearer ' + token,
+            'Accept': 'application/vnd.github+json',
+            'Cache-Control': 'no-cache'
+          },
+          cache: 'no-store'
+        });
+        if (!res.ok) throw new Error('http ' + res.status);
+        const meta = await res.json();
+
+        // Декодируем base64 → UTF-8
+        const bin = atob((meta.content || '').replace(/\n/g, ''));
+        const bytes = Uint8Array.from(bin, c => c.charCodeAt(0));
+        remote = JSON.parse(new TextDecoder().decode(bytes));
+      } else {
+        // Без токена — raw. Может кешироваться, но для чтения это терпимо.
+        const rawUrl = `https://raw.githubusercontent.com/${GITHUB.owner}/${GITHUB.repo}/${GITHUB.branch}/${GITHUB.path}`;
+        const res = await fetch(`${rawUrl}?t=${Date.now()}`, { cache: 'no-store' });
+        if (!res.ok) throw new Error('http ' + res.status);
+        remote = await res.json();
+      }
+
       if (remote && remote.state && remote.counts) {
         const changed = remote.updatedAt !== data.updatedAt;
         data = remote;
@@ -299,10 +329,11 @@
         updateCountsUI();
       }
       setStatus(
-        getToken() ? 'синхронизировано' : 'только чтение',
-        getToken() ? '#2ecc71' : '#e67e22'
+        token ? 'синхронизировано' : 'только чтение',
+        token ? '#2ecc71' : '#e67e22'
       );
     } catch (e) {
+      console.error('pull error', e);
       setStatus('нет связи', '#e74c3c');
     }
   }
@@ -351,8 +382,10 @@
       });
 
       if (putRes.ok) {
+        lastPushTime = Date.now();          // ← важно: блокируем pull на 7 сек
         setStatus('синхронизировано', '#2ecc71');
       } else if (putRes.status === 409) {
+        // Конфликт sha — кто-то успел раньше. Повторяем.
         writing = false;
         setTimeout(pushToGithub, 300);
         return;
@@ -393,11 +426,12 @@
      8. СТАРТ + периодический опрос
   */
   (async function init() {
-    await pullFromGithub();
+    await pullFromGithub({ force: true });
     if (!getToken()) {
       setStatus('нажмите ⚙️ чтобы ввести токен', '#e67e22');
     }
-    setInterval(pullFromGithub, 4000);
+    // Раз в 8 секунд. Чтение — через API, не через raw.
+    setInterval(() => pullFromGithub(), 8000);
   })();
 </script>
 </body>
