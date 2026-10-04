@@ -4,8 +4,8 @@
     "sleep": 2,
     "play": 6,
     "eat": 3,
-    "sit": 7,
-    "meow": 8
+    "sit": 8,
+    "meow": 9
   },
-  "updatedAt": 1791138604958
+  "updatedAt": 1791138608020
 }
