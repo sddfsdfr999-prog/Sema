@@ -148,6 +148,7 @@
   };
 
   const API_URL  = `https://api.github.com/repos/${GITHUB.owner}/${GITHUB.repo}/contents/${GITHUB.path}`;
+  const RAW_URL  = `https://raw.githubusercontent.com/${GITHUB.owner}/${GITHUB.repo}/${GITHUB.branch}/${GITHUB.path}`;
   const TOKEN_KEY = 'gh_token';
 
   /* ============================================================
@@ -291,7 +292,6 @@
   let lastPushTime = 0;
 
   async function pullFromGithub({ force = false } = {}) {
-    // Пауза после своей же записи — иначе вернём старое значение из кеша/гонки
     if (!force && Date.now() - lastPushTime < 7000) return;
 
     const token = getToken();
@@ -310,14 +310,11 @@
         if (!res.ok) throw new Error('http ' + res.status);
         const meta = await res.json();
 
-        // Декодируем base64 → UTF-8
         const bin = atob((meta.content || '').replace(/\n/g, ''));
         const bytes = Uint8Array.from(bin, c => c.charCodeAt(0));
         remote = JSON.parse(new TextDecoder().decode(bytes));
       } else {
-        // Без токена — raw. Может кешироваться, но для чтения это терпимо.
-        const rawUrl = `https://raw.githubusercontent.com/${GITHUB.owner}/${GITHUB.repo}/${GITHUB.branch}/${GITHUB.path}`;
-        const res = await fetch(`${rawUrl}?t=${Date.now()}`, { cache: 'no-store' });
+        const res = await fetch(`${RAW_URL}?t=${Date.now()}`, { cache: 'no-store' });
         if (!res.ok) throw new Error('http ' + res.status);
         remote = await res.json();
       }
@@ -340,6 +337,7 @@
 
   /* ============================================================
      6. ЗАПИСЬ в GitHub
+     При 409 (конфликт sha) — до 3 повторов с паузой 1.2 сек.
   */
   function b64encode(str) {
     const bytes = new TextEncoder().encode(str);
@@ -350,6 +348,7 @@
 
   let writing = false;
   let pending = false;
+  let pushAttempt = 0;
 
   async function pushToGithub() {
     const token = getToken();
@@ -364,7 +363,11 @@
         'X-GitHub-Api-Version': '2022-11-28'
       };
 
-      const getRes = await fetch(`${API_URL}?ref=${GITHUB.branch}`, { headers });
+      // Свежий sha прямо перед записью
+      const getRes = await fetch(`${API_URL}?ref=${GITHUB.branch}&t=${Date.now()}`, {
+        headers,
+        cache: 'no-store'
+      });
       if (!getRes.ok) throw new Error('GET ' + getRes.status);
       const meta = await getRes.json();
 
@@ -382,14 +385,22 @@
       });
 
       if (putRes.ok) {
-        lastPushTime = Date.now();          // ← важно: блокируем pull на 7 сек
+        pushAttempt = 0;
+        lastPushTime = Date.now();
         setStatus('синхронизировано', '#2ecc71');
       } else if (putRes.status === 409) {
-        // Конфликт sha — кто-то успел раньше. Повторяем.
+        pushAttempt++;
         writing = false;
-        setTimeout(pushToGithub, 300);
+        if (pushAttempt <= 3) {
+          setStatus(`конфликт, повтор ${pushAttempt}/3…`, '#e67e22');
+          setTimeout(pushToGithub, 1200);
+        } else {
+          setStatus('конфликт: перезагрузите страницу', '#e74c3c');
+          pushAttempt = 0;
+        }
         return;
       } else {
+        pushAttempt = 0;
         const t = await putRes.text();
         console.error('PUT failed', putRes.status, t);
         setStatus('ошибка записи: ' + putRes.status, '#e74c3c');
@@ -430,7 +441,6 @@
     if (!getToken()) {
       setStatus('нажмите ⚙️ чтобы ввести токен', '#e67e22');
     }
-    // Раз в 8 секунд. Чтение — через API, не через raw.
     setInterval(() => pullFromGithub(), 8000);
   })();
 </script>
