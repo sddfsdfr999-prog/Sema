@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Сёма 🐾</title>
+<style>
+  :root {
+    --bg1: #2c3e50; --bg2: #6b7f95;
+    --card: #ffffff; --accent: #ffb454; --text: #1a1a1a;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    min-height: 100vh;
+    display: flex; align-items: center; justify-content: center;
+    padding: 16px;
+    font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
+    background: linear-gradient(135deg, var(--bg1), var(--bg2));
+    color: var(--text);
+  }
+  .card {
+    width: 100%; max-width: 620px;
+    background: var(--card); border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+    overflow: hidden;
+  }
+  header { padding: 20px 22px 12px; text-align: center; position: relative; }
+  header h1 {
+    font-size: 28px; letter-spacing: 4px;
+    color: #33404f; font-family: 'Courier New', monospace; font-weight: 800;
+  }
+  header p {
+    margin-top: 4px; font-size: 11px; color: #999;
+    letter-spacing: 2px; text-transform: uppercase;
+  }
+  #settingsBtn {
+    position: absolute; top: 16px; right: 16px;
+    width: 32px; height: 32px;
+    border: none; background: transparent; cursor: pointer;
+    font-size: 16px; opacity: 0.4; transition: opacity 0.2s;
+    border-radius: 8px;
+  }
+  #settingsBtn:hover { opacity: 1; background: #f4f6f9; }
+
+  .stage {
+    display: grid; grid-template-columns: 1fr 170px;
+    gap: 14px; padding: 12px 20px 22px;
+  }
+  .scene {
+    background: #f4f6f9; border-radius: 16px; padding: 20px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    min-height: 280px; overflow: hidden;
+  }
+  .scene svg {
+    width: 100%; max-width: 240px; height: auto;
+    image-rendering: pixelated; transition: transform 0.3s ease;
+  }
+  .scene.pop svg { animation: pop 0.35s ease; }
+  @keyframes pop {
+    0% { transform: scale(1); } 50% { transform: scale(1.07); } 100% { transform: scale(1); }
+  }
+  .caption {
+    margin-top: 14px; font-size: 18px; font-weight: 700;
+    color: #33404f; letter-spacing: 0.5px;
+    transition: opacity 0.25s ease;
+  }
+  .caption.fade { opacity: 0; }
+
+  .actions { display: flex; flex-direction: column; gap: 8px; }
+  .actions button {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 12px; font-size: 14px; font-weight: 600;
+    color: #33404f; background: #f4f6f9;
+    border: 2px solid transparent; border-radius: 12px;
+    cursor: pointer; transition: all 0.2s ease;
+    text-align: left; font-family: inherit;
+  }
+  .actions button:hover { background: #e8ecf2; transform: translateX(-2px); }
+  .actions button.active {
+    background: #fff; border-color: var(--accent); color: #1a1a1a;
+    box-shadow: 0 4px 12px rgba(255,180,84,0.3);
+  }
+  .actions button .emoji { font-size: 16px; }
+  .actions button .label { flex: 1; }
+  .actions button .count {
+    font-size: 11px; color: #999; background: #fff;
+    padding: 2px 6px; border-radius: 999px;
+    min-width: 22px; text-align: center;
+    font-variant-numeric: tabular-nums;
+  }
+  .actions button.active .count { background: #fff5e0; color: var(--accent); }
+
+  .footer {
+    text-align: center; padding: 0 20px 20px;
+    font-size: 11px; color: #bbb; letter-spacing: 0.5px;
+  }
+  #statusIndicator { display: inline-flex; align-items: center; gap: 4px; }
+  #statusIndicator .dot { font-size: 14px; line-height: 1; }
+
+  @media (max-width: 520px) {
+    .stage { grid-template-columns: 1fr; }
+    .actions { flex-direction: row; flex-wrap: wrap; justify-content: center; }
+    .actions button {
+      flex: 1 1 calc(50% - 4px); justify-content: center; padding: 10px 8px;
+    }
+    .actions button .label { flex: none; }
+    .actions button .count { display: none; }
+  }
+</style>
+</head>
+<body>
+  <main class="card">
+    <header>
+      <h1>СЁМА</h1>
+      <p>pixel cat · небелунг</p>
+      <button id="settingsBtn" title="Настройки">⚙️</button>
+    </header>
+
+    <div class="stage">
+      <div class="scene" id="scene">
+        <div id="catHolder"></div>
+        <div class="caption" id="caption">Сёма спит</div>
+      </div>
+
+      <div class="actions" id="actions">
+        <button data-state="sleep"><span class="emoji">😴</span><span class="label">Спит</span><span class="count" data-count="sleep">0</span></button>
+        <button data-state="play"><span class="emoji">🧶</span><span class="label">Играет</span><span class="count" data-count="play">0</span></button>
+        <button data-state="eat"><span class="emoji">🍽️</span><span class="label">Кушает</span><span class="count" data-count="eat">0</span></button>
+        <button data-state="sit"><span class="emoji">🐾</span><span class="label">Сидит</span><span class="count" data-count="sit">0</span></button>
+        <button data-state="meow"><span class="emoji">🗣️</span><span class="label">Мяукает</span><span class="count" data-count="meow">0</span></button>
+      </div>
+    </div>
+
+    <div class="footer">
+      <span id="statusIndicator"><span class="dot">●</span><span id="statusText">запуск…</span></span>
+    </div>
+  </main>
+
+<script>
+  /* ============================================================
+     1. НАСТРОЙКИ РЕПОЗИТОРИЯ — УЖЕ ЗАПОЛНЕНО ВАШИМИ ДАННЫМИ
+  */
+  const GITHUB = {
+    owner: 'sddfsdfr999-prog',
+    repo:  'Sema',
+    branch: 'main',
+    path:  'state.txt'
+  };
+
+  const RAW_URL  = `https://raw.githubusercontent.com/${GITHUB.owner}/${GITHUB.repo}/${GITHUB.branch}/${GITHUB.path}`;
+  const API_URL  = `https://api.github.com/repos/${GITHUB.owner}/${GITHUB.repo}/contents/${GITHUB.path}`;
+  const TOKEN_KEY = 'gh_token';
+
+  /* ============================================================
+     2. ПИКСЕЛЬНЫЕ КОТЫ
+  */
+  const COLORS = {
+    'g': '#8b98a8', 'd': '#5a6b82', 'l': '#c8d1dc',
+    'k': '#1a2332', 'w': '#ffffff', 'p': '#e29aa2',
+    'o': '#ff8e53', 'y': '#d96e35', 'r': '#c0392b',
+    'b': '#8b4513', 'z': '#7f8fa6'
+  };
+  const CATS = {
+    sleep: { label: 'Сёма спит', art: [
+      '................','................','................',
+      '.....dd...dd....','....dggd.dggd...','....dgggggggd...',
+      '...dgggggggggd..','...dgggggggggd..','...dgkgggggkgd..',
+      '...dggggpggggd..','...dgggggggggd..','...dgggggggggd..',
+      '....dgggggggd...','.....dllllld....','......ddddd.....','................'
+    ]},
+    play: { label: 'Сёма играет', art: [
+      '................','....dd....dd....','...dggd..dggd...',
+      '...dggggggggd...','..dggggggggggd..','..dgkgggggkggd..',
+      '..dgkwgggkwggd..','..dggggggggggd..','..dggggpgggggd..',
+      '..dggggggggggd..','..lldggggggdll..','...lldggggdll...',
+      '....dggggggd....','.....dggggd.....','......dddd......','................'
+    ]},
+    eat: { label: 'Сёма кушает', art: [
+      '................','....dd....dd....','...dggd..dggd...',
+      '...dggggggggd...','..dggggggggggd..','..dgkgggggkggd..',
+      '..dgkwgggkwggd..','..dggggggggggd..','..dgggkkkkgggd..',
+      '..dggggggggggd..','...dggggggggd...','....dggggggd....',
+      '...ll.rrrr.ll...','..ll..bbbb..ll..','......dddd......','................'
+    ]},
+    sit: { label: 'Сёма сидит', art: [
+      '................','....dd....dd....','...dggd..dggd...',
+      '...dggggggggd...','..dggggggggggd..','..dgkgggggkggd..',
+      '..dgkwgggkwggd..','..dggggggggggd..','..dggggpgggggd..',
+      '..dggggggggggd..','...dggggggggdd..','....dggggggdgd..',
+      '....ll....l.d...','...ll......l....','................','................'
+    ]},
+    meow: { label: 'Сёма мяукает', art: [
+      '................','....dd....dd..z.','...dggd..dggd.z.',
+      '...dggggggggd.z.','..dggggggggggd..','..dgkgggggkggd..',
+      '..dgkwgggkwggd.z','..dggggggggggd.z','..dgggkkkkgggd..',
+      '..dgggkkkkgggd.z','...dgggkkgggd.z.','....dggggggd.z..',
+      '....ll....ll....','...ll......ll...','................','................'
+    ]}
+  };
+
+  const PX = 14;
+  function renderArt(art) {
+    const rows = art.length, cols = art[0].length;
+    const w = cols * PX, h = rows * PX;
+    let svg = `<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges">`;
+    for (let y = 0; y < rows; y++)
+      for (let x = 0; x < cols; x++) {
+        const c = COLORS[art[y][x]];
+        if (c) svg += `<rect x="${x*PX}" y="${y*PX}" width="${PX}" height="${PX}" fill="${c}"/>`;
+      }
+    return svg + '</svg>';
+  }
+
+  /* ============================================================
+     3. UI
+  */
+  const holder  = document.getElementById('catHolder');
+  const scene   = document.getElementById('scene');
+  const caption = document.getElementById('caption');
+  const buttons = [...document.querySelectorAll('.actions button')];
+  const statusText = document.getElementById('statusText');
+  const statusDot  = document.querySelector('#statusIndicator .dot');
+
+  let data = {
+    state: 'sleep',
+    counts: { sleep: 0, play: 0, eat: 0, sit: 0, meow: 0 },
+    updatedAt: 0
+  };
+
+  function setStatus(text, color) {
+    statusText.textContent = text;
+    statusDot.style.color = color;
+  }
+
+  function updateCountsUI() {
+    buttons.forEach(b => {
+      const el = b.querySelector('.count');
+      if (el) el.textContent = data.counts[b.dataset.state] || 0;
+    });
+  }
+
+  function render({ animate = true } = {}) {
+    const cat = CATS[data.state] || CATS.sleep;
+    holder.innerHTML = renderArt(cat.art);
+    caption.classList.add('fade');
+    setTimeout(() => {
+      caption.textContent = cat.label;
+      caption.classList.remove('fade');
+    }, 150);
+    buttons.forEach(b => b.classList.toggle('active', b.dataset.state === data.state));
+    if (animate) {
+      scene.classList.add('pop');
+      setTimeout(() => scene.classList.remove('pop'), 350);
+    }
+  }
+
+  /* ============================================================
+     4. ТОКЕН
+  */
+  function getToken() {
+    return localStorage.getItem(TOKEN_KEY) || '';
+  }
+  function askToken() {
+    const t = prompt(
+      'Введите GitHub fine-grained token (сохранится только в этом браузере).\n\n' +
+      'Создать: github.com/settings/personal-access-tokens/new\n' +
+      'Права: Contents → Read and write\n' +
+      'Repository access: только репозиторий ' + GITHUB.repo
+    );
+    if (t && t.trim()) {
+      localStorage.setItem(TOKEN_KEY, t.trim());
+      setStatus('токен сохранён', '#2ecc71');
+      pullFromGithub();
+    } else {
+      setStatus('токен не задан — только чтение', '#e67e22');
+    }
+  }
+  document.getElementById('settingsBtn').addEventListener('click', () => {
+    const cur = getToken();
+    if (cur) {
+      if (!confirm('Токен уже задан. Удалить его из этого браузера?')) return;
+      localStorage.removeItem(TOKEN_KEY);
+    }
+    askToken();
+  });
+
+  /* ============================================================
+     5. ЧТЕНИЕ из GitHub
+  */
+  async function pullFromGithub() {
+    try {
+      const res = await fetch(`${RAW_URL}?t=${Date.now()}`, { cache: 'no-store' });
+      if (!res.ok) throw new Error('http ' + res.status);
+      const remote = await res.json();
+      if (remote && remote.state && remote.counts) {
+        const changed = remote.updatedAt !== data.updatedAt;
+        data = remote;
+        render({ animate: changed });
+        updateCountsUI();
+      }
+      setStatus(
+        getToken() ? 'синхронизировано' : 'только чтение',
+        getToken() ? '#2ecc71' : '#e67e22'
+      );
+    } catch (e) {
+      setStatus('нет связи', '#e74c3c');
+    }
+  }
+
+  /* ============================================================
+     6. ЗАПИСЬ в GitHub
+  */
+  function b64encode(str) {
+    const bytes = new TextEncoder().encode(str);
+    let bin = '';
+    bytes.forEach(b => bin += String.fromCharCode(b));
+    return btoa(bin);
+  }
+
+  let writing = false;
+  let pending = false;
+
+  async function pushToGithub() {
+    const token = getToken();
+    if (!token) return;
+    if (writing) { pending = true; return; }
+    writing = true;
+
+    try {
+      const headers = {
+        'Authorization': `Bearer ${token}`,
+        'Accept': 'application/vnd.github+json',
+        'X-GitHub-Api-Version': '2022-11-28'
+      };
+
+      const getRes = await fetch(`${API_URL}?ref=${GITHUB.branch}`, { headers });
+      if (!getRes.ok) throw new Error('GET ' + getRes.status);
+      const meta = await getRes.json();
+
+      const body = {
+        message: `sema: ${data.state} [skip ci]`,
+        content: b64encode(JSON.stringify(data, null, 2)),
+        branch: GITHUB.branch,
+        sha: meta.sha
+      };
+
+      const putRes = await fetch(API_URL, {
+        method: 'PUT',
+        headers: { ...headers, 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+
+      if (putRes.ok) {
+        setStatus('синхронизировано', '#2ecc71');
+      } else if (putRes.status === 409) {
+        writing = false;
+        setTimeout(pushToGithub, 300);
+        return;
+      } else {
+        const t = await putRes.text();
+        console.error('PUT failed', putRes.status, t);
+        setStatus('ошибка записи: ' + putRes.status, '#e74c3c');
+      }
+    } catch (e) {
+      console.error(e);
+      setStatus('ошибка записи (сеть)', '#e74c3c');
+    } finally {
+      writing = false;
+      if (pending) { pending = false; pushToGithub(); }
+    }
+  }
+
+  /* ============================================================
+     7. ОБРАБОТКА КЛИКОВ
+  */
+  buttons.forEach(b => {
+    b.addEventListener('click', () => {
+      data.state = b.dataset.state;
+      data.counts[data.state] = (data.counts[data.state] || 0) + 1;
+      data.updatedAt = Date.now();
+      render();
+      updateCountsUI();
+
+      if (!getToken()) {
+        setStatus('нажмите ⚙️ чтобы ввести токен', '#e67e22');
+        return;
+      }
+      pushToGithub();
+    });
+  });
+
+  /* ============================================================
+     8. СТАРТ + периодический опрос
+  */
+  (async function init() {
+    await pullFromGithub();
+    if (!getToken()) {
+      setStatus('нажмите ⚙️ чтобы ввести токен', '#e67e22');
+    }
+    setInterval(pullFromGithub, 4000);
+  })();
+</script>
+</body>
+</html>
