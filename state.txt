@@ -1,11 +1,11 @@
 {
-  "state": "sit",
+  "state": "eat",
   "counts": {
     "sleep": 0,
     "play": 0,
-    "eat": 0,
+    "eat": 1,
     "sit": 1,
     "meow": 0
   },
-  "updatedAt": 1791138184188
+  "updatedAt": 1791138187228
 }
