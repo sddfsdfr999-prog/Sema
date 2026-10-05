@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Сёма 🐾</title>
+<title>Сёма · тамагочи 🐾</title>
 <style>
   :root {
     --bg1: #2c3e50; --bg2: #6b7f95;
@@ -19,22 +19,22 @@
     color: var(--text);
   }
   .card {
-    width: 100%; max-width: 620px;
+    width: 100%; max-width: 480px;
     background: var(--card); border-radius: 20px;
     box-shadow: 0 20px 60px rgba(0,0,0,0.4);
     overflow: hidden;
   }
-  header { padding: 20px 22px 12px; text-align: center; position: relative; }
+  header { padding: 18px 22px 10px; text-align: center; position: relative; }
   header h1 {
-    font-size: 28px; letter-spacing: 4px;
+    font-size: 24px; letter-spacing: 3px;
     color: #33404f; font-family: 'Courier New', monospace; font-weight: 800;
   }
   header p {
     margin-top: 4px; font-size: 11px; color: #999;
-    letter-spacing: 2px; text-transform: uppercase;
+    letter-spacing: 1.5px; text-transform: uppercase;
   }
   #settingsBtn {
-    position: absolute; top: 16px; right: 16px;
+    position: absolute; top: 14px; right: 14px;
     width: 32px; height: 32px;
     border: none; background: transparent; cursor: pointer;
     font-size: 16px; opacity: 0.4; transition: opacity 0.2s;
@@ -42,99 +42,148 @@
   }
   #settingsBtn:hover { opacity: 1; background: #f4f6f9; }
 
-  .stage {
-    display: grid; grid-template-columns: 1fr 170px;
-    gap: 14px; padding: 12px 20px 22px;
-  }
+  /* Сцена с котом */
   .scene {
-    background: #f4f6f9; border-radius: 16px; padding: 20px;
+    margin: 6px 20px 14px;
+    background: #f4f6f9; border-radius: 16px; padding: 18px;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
-    min-height: 280px; overflow: hidden;
+    min-height: 240px; overflow: hidden; position: relative;
   }
   .scene svg {
-    width: 100%; max-width: 240px; height: auto;
-    image-rendering: pixelated; transition: transform 0.3s ease;
+    width: 100%; max-width: 200px; height: auto;
+    image-rendering: pixelated;
+    transition: transform 0.3s ease;
   }
   .scene.pop svg { animation: pop 0.35s ease; }
   @keyframes pop {
-    0% { transform: scale(1); } 50% { transform: scale(1.07); } 100% { transform: scale(1); }
+    0% { transform: scale(1); } 50% { transform: scale(1.08); } 100% { transform: scale(1); }
   }
-  .caption {
-    margin-top: 14px; font-size: 18px; font-weight: 700;
-    color: #33404f; letter-spacing: 0.5px;
+  .speech {
+    position: absolute; top: 12px; left: 12px; right: 12px;
+    text-align: center;
+    font-size: 12px;
+    color: #6a7686;
+    font-style: italic;
+    min-height: 16px;
     transition: opacity 0.25s ease;
   }
-  .caption.fade { opacity: 0; }
+  .speech.fade { opacity: 0; }
 
-  .actions { display: flex; flex-direction: column; gap: 8px; }
-  .actions button {
+  /* Полоски */
+  .stats {
+    padding: 0 22px 12px;
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .stat {
     display: flex; align-items: center; gap: 10px;
-    padding: 10px 12px; font-size: 14px; font-weight: 600;
+    font-size: 13px;
+  }
+  .stat .icon { width: 22px; text-align: center; font-size: 15px; }
+  .stat .bar {
+    flex: 1; height: 10px; background: #eef1f5;
+    border-radius: 999px; overflow: hidden;
+  }
+  .stat .bar-fill {
+    height: 100%; width: 0%;
+    transition: width 0.4s ease, background 0.3s ease;
+    border-radius: 999px;
+  }
+  .stat .num {
+    width: 28px; text-align: right;
+    font-size: 11px; color: #999;
+    font-variant-numeric: tabular-nums;
+  }
+  .stat .label {
+    width: 78px; color: #6a7686;
+    font-size: 12px;
+  }
+
+  /* Кнопки */
+  .actions {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 8px; padding: 4px 20px 18px;
+  }
+  .actions button {
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    padding: 12px; font-size: 14px; font-weight: 600;
     color: #33404f; background: #f4f6f9;
     border: 2px solid transparent; border-radius: 12px;
     cursor: pointer; transition: all 0.2s ease;
-    text-align: left; font-family: inherit;
+    font-family: inherit;
   }
-  .actions button:hover { background: #e8ecf2; transform: translateX(-2px); }
-  .actions button.active {
-    background: #fff; border-color: var(--accent); color: #1a1a1a;
-    box-shadow: 0 4px 12px rgba(255,180,84,0.3);
+  .actions button:hover:not(:disabled) {
+    background: #e8ecf2; transform: translateY(-1px);
   }
+  .actions button:active:not(:disabled) { transform: scale(0.98); }
+  .actions button:disabled { opacity: 0.35; cursor: not-allowed; }
   .actions button .emoji { font-size: 16px; }
-  .actions button .label { flex: 1; }
-  .actions button .count {
-    font-size: 11px; color: #999; background: #fff;
-    padding: 2px 6px; border-radius: 999px;
-    min-width: 22px; text-align: center;
-    font-variant-numeric: tabular-nums;
-  }
-  .actions button.active .count { background: #fff5e0; color: var(--accent); }
 
   .footer {
-    text-align: center; padding: 0 20px 20px;
+    text-align: center; padding: 0 20px 18px;
     font-size: 11px; color: #bbb; letter-spacing: 0.5px;
   }
   #statusIndicator { display: inline-flex; align-items: center; gap: 4px; }
   #statusIndicator .dot { font-size: 14px; line-height: 1; }
 
-  @media (max-width: 520px) {
-    .stage { grid-template-columns: 1fr; }
-    .actions { flex-direction: row; flex-wrap: wrap; justify-content: center; }
-    .actions button {
-      flex: 1 1 calc(50% - 4px); justify-content: center; padding: 10px 8px;
-    }
-    .actions button .label { flex: none; }
-    .actions button .count { display: none; }
+  /* Toast */
+  .toast {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+    background: #33404f; color: #fff;
+    padding: 10px 18px; border-radius: 999px;
+    font-size: 13px; opacity: 0; pointer-events: none;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    z-index: 100;
   }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(-6px); }
 </style>
 </head>
 <body>
   <main class="card">
     <header>
       <h1>СЁМА</h1>
-      <p>pixel cat · небелунг</p>
+      <p id="ageLabel">pixel cat · 0 дней вместе</p>
       <button id="settingsBtn" title="Настройки">⚙️</button>
     </header>
 
-    <div class="stage">
-      <div class="scene" id="scene">
-        <div id="catHolder"></div>
-        <div class="caption" id="caption">Сёма спит</div>
-      </div>
+    <div class="scene" id="scene">
+      <div class="speech" id="speech"></div>
+      <div id="catHolder"></div>
+    </div>
 
-      <div class="actions" id="actions">
-        <button data-state="sleep"><span class="emoji">😴</span><span class="label">Спит</span><span class="count" data-count="sleep">0</span></button>
-        <button data-state="play"><span class="emoji">🧶</span><span class="label">Играет</span><span class="count" data-count="play">0</span></button>
-        <button data-state="eat"><span class="emoji">🍽️</span><span class="label">Кушает</span><span class="count" data-count="eat">0</span></button>
-        <button data-state="sit"><span class="emoji">🐾</span><span class="label">Сидит</span><span class="count" data-count="sit">0</span></button>
-        <button data-state="meow"><span class="emoji">🗣️</span><span class="label">Мяукает</span><span class="count" data-count="meow">0</span></button>
+    <div class="stats">
+      <div class="stat">
+        <span class="icon">🍽️</span>
+        <span class="label">Сытость</span>
+        <div class="bar"><div class="bar-fill" id="barHunger"></div></div>
+        <span class="num" id="numHunger">0</span>
       </div>
+      <div class="stat">
+        <span class="icon">⚡</span>
+        <span class="label">Энергия</span>
+        <div class="bar"><div class="bar-fill" id="barEnergy"></div></div>
+        <span class="num" id="numEnergy">0</span>
+      </div>
+      <div class="stat">
+        <span class="icon">💛</span>
+        <span class="label">Настроение</span>
+        <div class="bar"><div class="bar-fill" id="barMood"></div></div>
+        <span class="num" id="numMood">0</span>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button data-action="feed"><span class="emoji">🍽️</span>Покормить</button>
+      <button data-action="play"><span class="emoji">🧶</span>Поиграть</button>
+      <button data-action="sleep"><span class="emoji">😴</span>Уложить спать</button>
+      <button data-action="pet"><span class="emoji">🤚</span>Погладить</button>
     </div>
 
     <div class="footer">
       <span id="statusIndicator"><span class="dot">●</span><span id="statusText">запуск…</span></span>
     </div>
   </main>
+
+  <div class="toast" id="toast"></div>
 
 <script>
   /* ============================================================
@@ -146,13 +195,14 @@
     branch: 'main',
     path:  'state.txt'
   };
-
-  const API_URL  = `https://api.github.com/repos/${GITHUB.owner}/${GITHUB.repo}/contents/${GITHUB.path}`;
-  const RAW_URL  = `https://raw.githubusercontent.com/${GITHUB.owner}/${GITHUB.repo}/${GITHUB.branch}/${GITHUB.path}`;
+  const API_URL = `https://api.github.com/repos/${GITHUB.owner}/${GITHUB.repo}/contents/${GITHUB.path}`;
+  const RAW_URL = `https://raw.githubusercontent.com/${GITHUB.owner}/${GITHUB.repo}/${GITHUB.branch}/${GITHUB.path}`;
   const TOKEN_KEY = 'gh_token';
 
   /* ============================================================
      2. ПИКСЕЛЬНЫЕ КОТЫ
+     Символы: . прозр  g шерсть  d тёмный  l светлый  k глаза
+              w блик  p нос  o оранж  r красн  b коричн  z звук
   */
   const COLORS = {
     'g': '#8b98a8', 'd': '#5a6b82', 'l': '#c8d1dc',
@@ -160,42 +210,56 @@
     'o': '#ff8e53', 'y': '#d96e35', 'r': '#c0392b',
     'b': '#8b4513', 'z': '#7f8fa6'
   };
+
   const CATS = {
-    sleep: { label: 'Сёма спит', art: [
+    // Обычное состояние — стоит
+    idle: [
+      '................','....dd....dd....','...dggd..dggd...',
+      '...dggggggggd...','..dggggggggggd..','..dgkgggggkggd..',
+      '..dgkwgggkwggd..','..dggggggggggd..','..dggggpgggggd..',
+      '..dggggggggggd..','...dggggggggd...','....dggggggd....',
+      '....ll....ll....','...ll......ll...','................','................'
+    ],
+    // Спит — глаза закрыты, Zzz
+    sleeping: [
       '................','................','................',
       '.....dd...dd....','....dggd.dggd...','....dgggggggd...',
       '...dgggggggggd..','...dgggggggggd..','...dgkgggggkgd..',
       '...dggggpggggd..','...dgggggggggd..','...dgggggggggd..',
-      '....dgggggggd...','.....dllllld....','......ddddd.....','................'
-    ]},
-    play: { label: 'Сёма играет', art: [
+      '....dgggggggd...','.....dllllld....','......ddddd.....','.....z..Z.......'
+    ],
+    // Грустный — уголки рта вниз
+    sad: [
       '................','....dd....dd....','...dggd..dggd...',
       '...dggggggggd...','..dggggggggggd..','..dgkgggggkggd..',
       '..dgkwgggkwggd..','..dggggggggggd..','..dggggpgggggd..',
-      '..dggggggggggd..','..lldggggggdll..','...lldggggdll...',
-      '....dggggggd....','.....dggggd.....','......dddd......','................'
-    ]},
-    eat: { label: 'Сёма кушает', art: [
+      '..dggggggggggd..','...dggggggggd...','....dggggggd....',
+      '....ll....ll....','...ll......ll...','................','................'
+    ],
+    // Кушает — миска
+    eating: [
       '................','....dd....dd....','...dggd..dggd...',
       '...dggggggggd...','..dggggggggggd..','..dgkgggggkggd..',
       '..dgkwgggkwggd..','..dggggggggggd..','..dgggkkkkgggd..',
       '..dggggggggggd..','...dggggggggd...','....dggggggd....',
       '...ll.rrrr.ll...','..ll..bbbb..ll..','......dddd......','................'
-    ]},
-    sit: { label: 'Сёма сидит', art: [
+    ],
+    // Играет — клубок
+    playing: [
       '................','....dd....dd....','...dggd..dggd...',
       '...dggggggggd...','..dggggggggggd..','..dgkgggggkggd..',
       '..dgkwgggkwggd..','..dggggggggggd..','..dggggpgggggd..',
-      '..dggggggggggd..','...dggggggggdd..','....dggggggdgd..',
-      '....ll....l.d...','...ll......l....','................','................'
-    ]},
-    meow: { label: 'Сёма мяукает', art: [
-      '................','....dd....dd..z.','...dggd..dggd.z.',
-      '...dggggggggd.z.','..dggggggggggd..','..dgkgggggkggd..',
-      '..dgkwgggkwggd.z','..dggggggggggd.z','..dgggkkkkgggd..',
-      '..dgggkkkkgggd.z','...dgggkkgggd.z.','....dggggggd.z..',
+      '..dggggggggggd..','..lldggggggdll..','...lldggggdll...',
+      '....dggggggd....','...oo.dggggd.oo.','..o.y..dddd..y.o','................'
+    ],
+    // Сыт и счастлив — улыбка
+    happy: [
+      '................','....dd....dd....','...dggd..dggd...',
+      '...dggggggggd...','..dggggggggggd..','..dgkgggggkggd..',
+      '..dgkwgggkwggd..','..dggggggggggd..','..dggggpgggggd..',
+      '..dggggggggggd..','...dggggggggd...','....dggggggd....',
       '....ll....ll....','...ll......ll...','................','................'
-    ]}
+    ]
   };
 
   const PX = 14;
@@ -212,57 +276,315 @@
   }
 
   /* ============================================================
-     3. UI
+     3. СОСТОЯНИЕ
   */
-  const holder  = document.getElementById('catHolder');
-  const scene   = document.getElementById('scene');
-  const caption = document.getElementById('caption');
-  const buttons = [...document.querySelectorAll('.actions button')];
-  const statusText = document.getElementById('statusText');
-  const statusDot  = document.querySelector('#statusIndicator .dot');
-
-  let data = {
-    state: 'sleep',
-    counts: { sleep: 0, play: 0, eat: 0, sit: 0, meow: 0 },
+  let state = {
+    hunger: 80,       // 0-100
+    energy: 80,       // 0-100
+    mood:   80,       // 0-100
+    lastTick: Date.now(),
+    bornAt: Date.now(),
+    counts: { feed: 0, play: 0, sleep: 0, pet: 0 },
     updatedAt: 0
   };
+
+  // Падение в час
+  const DECAY = {
+    hunger: 10,   // сытость падает на 10/час
+    energy: 6,    // энергия на 6/час
+    mood:   8     // настроение на 8/час
+  };
+
+  function clamp(v) { return Math.max(0, Math.min(100, Math.round(v))); }
+
+  function applyDecay() {
+    const now = Date.now();
+    const elapsed = now - (state.lastTick || now);
+    const hours = elapsed / 3600000;
+
+    state.hunger = clamp(state.hunger - DECAY.hunger * hours);
+    state.energy = clamp(state.energy - DECAY.energy * hours);
+    state.mood   = clamp(state.mood   - DECAY.mood   * hours);
+
+    // Если сыт и энергичен — настроение потихоньку растёт
+    if (state.hunger > 60 && state.energy > 60) {
+      state.mood = clamp(state.mood + 1);
+    }
+
+    state.lastTick = now;
+  }
+
+  /* ============================================================
+     4. UI
+  */
+  const holder    = document.getElementById('catHolder');
+  const scene     = document.getElementById('scene');
+  const speechEl  = document.getElementById('speech');
+  const statusText = document.getElementById('statusText');
+  const statusDot  = document.querySelector('#statusIndicator .dot');
+  const ageLabel   = document.getElementById('ageLabel');
+  const toast      = document.getElementById('toast');
+
+  let currentArt = 'idle';
+  let busyAction = null;   // какая анимация сейчас играет
 
   function setStatus(text, color) {
     statusText.textContent = text;
     statusDot.style.color = color;
   }
 
-  function updateCountsUI() {
-    buttons.forEach(b => {
-      const el = b.querySelector('.count');
-      if (el) el.textContent = data.counts[b.dataset.state] || 0;
-    });
+  function showToast(text) {
+    toast.textContent = text;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 1600);
+  }
+
+  function setSpeech(text) {
+    speechEl.classList.add('fade');
+    setTimeout(() => {
+      speechEl.textContent = text;
+      speechEl.classList.remove('fade');
+    }, 150);
+  }
+
+  function pickArt() {
+    // Если действие активно — показываем его
+    if (busyAction) return busyAction;
+
+    // Иначе — по состоянию
+    if (state.energy < 20) return 'sleeping';
+    if (state.hunger < 25) return 'sad';
+    if (state.mood < 25)   return 'sad';
+    if (state.hunger > 80 && state.energy > 80 && state.mood > 80) return 'happy';
+    return 'idle';
+  }
+
+  function pickSpeech() {
+    if (busyAction) return '';
+    if (state.energy < 20) return 'Сёма хочет спать…';
+    if (state.hunger < 25) return 'Сёма голодный! 😿';
+    if (state.mood < 25)   return 'Сёме грустно, поиграй с ним';
+    if (state.hunger > 80 && state.energy > 80 && state.mood > 80) return 'Сёма счастлив! 🐾';
+    return '';
+  }
+
+  function barColor(v) {
+    if (v < 25) return 'linear-gradient(90deg, #e74c3c, #ff8e53)';
+    if (v < 55) return 'linear-gradient(90deg, #ffb454, #ffd97a)';
+    return 'linear-gradient(90deg, #2ecc71, #7ad99a)';
+  }
+
+  function updateBars() {
+    document.getElementById('barHunger').style.width = state.hunger + '%';
+    document.getElementById('barHunger').style.background = barColor(state.hunger);
+    document.getElementById('numHunger').textContent = state.hunger;
+
+    document.getElementById('barEnergy').style.width = state.energy + '%';
+    document.getElementById('barEnergy').style.background = barColor(state.energy);
+    document.getElementById('numEnergy').textContent = state.energy;
+
+    document.getElementById('barMood').style.width = state.mood + '%';
+    document.getElementById('barMood').style.background = barColor(state.mood);
+    document.getElementById('numMood').textContent = state.mood;
+  }
+
+  function updateAge() {
+    const days = Math.max(0, Math.floor((Date.now() - (state.bornAt || Date.now())) / 86400000));
+    ageLabel.textContent = `pixel cat · ${days} ${daysWord(days)} вместе`;
+  }
+  function daysWord(n) {
+    const m = n % 10, h = n % 100;
+    if (h >= 11 && h <= 19) return 'дней';
+    if (m === 1) return 'день';
+    if (m >= 2 && m <= 4) return 'дня';
+    return 'дней';
   }
 
   function render({ animate = true } = {}) {
-    const cat = CATS[data.state] || CATS.sleep;
-    holder.innerHTML = renderArt(cat.art);
-    caption.classList.add('fade');
-    setTimeout(() => {
-      caption.textContent = cat.label;
-      caption.classList.remove('fade');
-    }, 150);
-    buttons.forEach(b => b.classList.toggle('active', b.dataset.state === data.state));
+    const artKey = pickArt();
+    currentArt = artKey;
+    holder.innerHTML = renderArt(CATS[artKey]);
     if (animate) {
       scene.classList.add('pop');
       setTimeout(() => scene.classList.remove('pop'), 350);
     }
+    updateBars();
+    updateAge();
+    const s = pickSpeech();
+    if (s) setSpeech(s);
   }
 
   /* ============================================================
-     4. ТОКЕН
+     5. ТОКЕН
   */
-  function getToken() {
-    return localStorage.getItem(TOKEN_KEY) || '';
-  }
+  function getToken() { return localStorage.getItem(TOKEN_KEY) || ''; }
+
   function askToken() {
     const t = prompt(
       'Введите GitHub fine-grained token (сохранится только в этом браузере).\n\n' +
+      'Создать: github.com/settings/personal-access-tokens/new\n' +
+      'Права: Contents → Read and write\n' +
+      'Repository access: только репозиторий ' + GITHUB.repo
+    );
+    if (t && t.trim()) {
+      localStorage.setItem(TOKEN_KEY, t.trim());
+      setStatus('токен сохранён', '#2ecc71');
+      pullFromGithub({ force: true });
+    } else {
+      setStatus('токен не задан — только чтение', '#e67e22');
+    }
+  }
+  document.getElementById('settingsBtn').addEventListener('click', () => {
+    const cur = getToken();
+    if (cur) {
+      if (!confirm('Токен уже задан. Удалить его из этого браузера?')) return;
+      localStorage.removeItem(TOKEN_KEY);
+    }
+    askToken();
+  });
+
+  /* ============================================================
+     6. ЧТЕНИЕ
+  */
+  let lastPushTime = 0;
+
+  function applyRemote(remote, mode) {
+    if (remote && typeof remote.hunger === 'number') {
+      // Чужое состояние новее — берём его
+      if ((remote.updatedAt || 0) > (state.updatedAt || 0)) {
+        state = Object.assign(state, remote);
+        applyDecay();
+        render({ animate: true });
+      }
+    }
+    setStatus(mode === 'api' ? 'синхронизировано' : 'raw-режим · кеш ~5 мин',
+              mode === 'api' ? '#2ecc71' : '#e67e22');
+  }
+
+  async function pullFromGithub({ force = false } = {}) {
+    if (!force && Date.now() - lastPushTime < 7000) return;
+    const token = getToken();
+
+    if (token) {
+      try {
+        const res = await fetch(`${API_URL}?ref=${GITHUB.branch}&t=${Date.now()}`, {
+          headers: {
+            'Authorization': 'Bearer ' + token,
+            'Accept': 'application/vnd.github+json'
+          }
+        });
+        if (res.ok) {
+          const meta = await res.json();
+          const bin = atob((meta.content || '').replace(/\n/g, ''));
+          const bytes = new Uint8Array(bin.length);
+          for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+          const remote = JSON.parse(new TextDecoder('utf-8').decode(bytes));
+          applyRemote(remote, 'api');
+          return;
+        }
+      } catch (e) { console.warn('[pull] api error', e); }
+    }
+
+    try {
+      const res = await fetch(`${RAW_URL}?t=${Date.now()}`);
+      if (!res.ok) { setStatus('pull ' + res.status, '#e74c3c'); return; }
+      const remote = await res.json();
+      applyRemote(remote, 'raw');
+    } catch (e) {
+      setStatus('pull: ' + (e.message || e.name), '#e74c3c');
+    }
+  }
+
+  /* ============================================================
+     7. ЗАПИСЬ
+  */
+  function b64encode(str) {
+    const bytes = new TextEncoder().encode(str);
+    let bin = '';
+    for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+    return btoa(bin);
+  }
+
+  let writing = false, pending = false, pushAttempt = 0;
+
+  async function pushToGithub() {
+    const token = getToken();
+    if (!token) return;
+    if (writing) { pending = true; return; }
+    writing = true;
+    try {
+      const headers = {
+        'Authorization': 'Bearer ' + token,
+        'Accept': 'application/vnd.github+json',
+        'X-GitHub-Api-Version': '2022-11-28'
+      };
+      const getRes = await fetch(`${API_URL}?ref=${GITHUB.branch}&t=${Date.now()}`, { headers });
+      if (!getRes.ok) throw new Error('GET ' + getRes.status);
+      const meta = await getRes.json();
+
+      state.updatedAt = Date.now();
+      const body = {
+        message: `sema: ${currentArt} [skip ci]`,
+        content: b64encode(JSON.stringify(state, null, 2)),
+        branch: GITHUB.branch,
+        sha: meta.sha
+      };
+      const putRes = await fetch(API_URL, {
+        method: 'PUT',
+        headers: { ...headers, 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+      if (putRes.ok) {
+        pushAttempt = 0; lastPushTime = Date.now();
+        setStatus('синхронизировано', '#2ecc71');
+      } else if (putRes.status === 409) {
+        pushAttempt++; writing = false;
+        if (pushAttempt <= 3) {
+          setStatus(`конфликт, повтор ${pushAttempt}/3…`, '#e67e22');
+          setTimeout(pushToGithub, 1200);
+        } else {
+          setStatus('конфликт: перезагрузите страницу', '#e74c3c');
+          pushAttempt = 0;
+        }
+        return;
+      } else {
+        pushAttempt = 0;
+        setStatus('ошибка записи: ' + putRes.status, '#e74c3c');
+      }
+    } catch (e) {
+      console.error(e);
+      setStatus('ошибка записи (сеть)', '#e74c3c');
+    } finally {
+      writing = false;
+      if (pending) { pending = false; pushToGithub(); }
+    }
+  }
+
+  /* ============================================================
+     8. ДЕЙСТВИЯ
+  */
+  function runAction(action) {
+    applyDecay();
+
+    let art, msg;
+    switch (action) {
+      case 'feed':
+        if (state.hunger >= 95) { showToast('Сёма не голоден'); return; }
+        state.hunger = clamp(state.hunger + 30);
+        state.mood   = clamp(state.mood + 5);
+        state.counts.feed = (state.counts.feed || 0) + 1;
+        art = 'eating'; msg = 'Сёма кушает 🍽️';
+        break;
+      case 'play':
+        if (state.energy < 15) { showToast('Сёма слишком устал'); return; }
+        state.mood   = clamp(state.mood + 25);
+        state.energy = clamp(state.energy - 15);
+        state.hunger = clamp(state.hunger - 8);
+        state.counts.play = (state.counts.play || 0) + 1;
+        art = 'playing'; msg = 'Сёма играет 🧶';
+        break;
+      case 'sleep':
+        if (state.eneраузере).\n\n' +
       'Создать: github.com/settings/personal-access-tokens/new\n' +
       'Права: Contents → Read and write\n' +
       'Repository access: только репозиторий ' + GITHUB.repo
